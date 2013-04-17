@@ -20,6 +20,11 @@ import org.scalacheck._
 import breeze.linalg.parallel._
 import breeze.linalg._
 
+
+/**
+ * Tests for the parallel tsqr. Will probably take a bit to run (~2-3 minutes).
+ */
+
 object TSQRSpecification extends Properties("TSQR") {
   import Prop.forAll
 
@@ -33,6 +38,7 @@ object TSQRSpecification extends Properties("TSQR") {
         m <- Gen.choose(n+1,5000)
       } yield DenseMatrix.rand(m,n)
     }
+
 
   property("R Part")  = forAll( (mat: DenseMatrix[Double]) => {
     val buf = (math.random*(mat.rows-mat.cols)+mat.cols).toInt
