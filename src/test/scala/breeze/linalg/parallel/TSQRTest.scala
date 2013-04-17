@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package breeze.linalg.parallel
+package breeze.linalg
 
 import org.scalacheck._
-import breeze.linalg._
 import breeze.linalg.parallel._
+import breeze.linalg._
 
 object TSQRSpecification extends Properties("TSQR") {
   import Prop.forAll
@@ -34,12 +34,22 @@ object TSQRSpecification extends Properties("TSQR") {
       } yield DenseMatrix.rand(m,n)
     }
 
-  property("TSQR")  = forAll( (mat: DenseMatrix[Double]) => {
+  property("R Part")  = forAll( (mat: DenseMatrix[Double]) => {
     val buf = (math.random*(mat.rows-mat.cols)+mat.cols).toInt
-    val parR = tsqr(mat,buf)
+    val parR = tsqr(mat,buf,true)._2
     val (q,r) = qr(mat,true)
     val r2 = r(0 until r.cols,::)
     val diff = parR.mapValues(math.abs) - r2.mapValues(math.abs)
+    val truthmat = diff.mapValues(_ < Epsilon)
+    truthmat.data.foldLeft(true)(_ && _)
+  })
+
+  property("Q Part")  = forAll( (mat: DenseMatrix[Double]) => {
+    val buf = (math.random*(mat.rows-mat.cols)+mat.cols).toInt
+    val qopt = tsqr(mat,buf,false)._1
+    val q = qopt.get
+    val qqt = q.t * q
+    val diff = qqt.mapValues(math.abs) - DenseMatrix.eye[Double](qqt.rows)
     val truthmat = diff.mapValues(_ < Epsilon)
     truthmat.data.foldLeft(true)(_ && _)
   })

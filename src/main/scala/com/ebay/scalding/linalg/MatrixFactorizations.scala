@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+
+
 package com.ebay.scalding
 
 import com.twitter.scalding._
@@ -30,11 +32,11 @@ object linalg {
 
     def reduce(l: DenseMatrix[Double], r: DenseMatrix[Double]): DenseMatrix[Double] = {
       val newMat = DenseMatrix.vertcat(l,r)
-      if (newMat.rows > buf) parallel.tsqr(newMat, buf) else newMat
+      if (newMat.rows > buf) parallel.tsqr(newMat, buf, true)._2 else newMat
     }
 
     def present(dMat: DenseMatrix[Double]): Iterable[(Int, Int, Double)] = {
-      val finalMat = parallel.tsqr(dMat,buf)
+      val finalMat = parallel.tsqr(dMat,buf,true)._2
       finalMat.iterator.map {
         tup => (tup._1._1, tup._1._2, tup._2)
       }.toIterable
