@@ -17,7 +17,7 @@ limitations under the License.
 package breeze.linalg
 
 
-object parallel {
+package object parallel {
 
 
   /**
@@ -70,3 +70,6 @@ object parallel {
 
   }
 }
+
+
+

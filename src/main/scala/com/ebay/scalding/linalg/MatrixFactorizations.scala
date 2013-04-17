@@ -19,7 +19,7 @@ limitations under the License.
 package com.ebay.scalding
 
 import com.twitter.scalding._
-import com.twitter.scalding.mathematics.Matrix
+import com.twitter.scalding.mathematics.{SparseHint, Matrix}
 import breeze.linalg.{SparseVector, DenseMatrix}
 import breeze.linalg.parallel
 import com.twitter.scalding.mathematics.Matrix._
@@ -88,7 +88,7 @@ object linalg {
       outpipe.toPipe((mat.rowSym,mat.colSym,mat.valSym))
       */
     }
-    val newHint = mat.sizeHint.setCols(cols).setRows(cols)
+    val newHint = SparseHint(0.5,cols,cols)
     new Matrix[Int, Int, Double](mat.rowSym, mat.colSym, mat.valSym, newPipe, newHint)
   }
 
