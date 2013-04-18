@@ -47,36 +47,38 @@ object Benchmark extends App{
       }
 
     }
+    // nicer way to get a high condition number matrix
+    val fixedmat1 = DenseMatrix.rand(10000,10)
+    val (fq,fr) = tsqr(fixedmat1,1000,false)
+    val fixedmat2 = DenseMatrix.rand(10,10)
+    val (fq2,fr2) = tsqr(fixedmat2,100,false)
+    val ones = DenseVector.ones[Double](9)
 
-    val fixedmat = DenseMatrix.rand(10000,100)
-    val (u,sigma,v) = svd(fixedmat)
-    println("U is " + u.rows + "x" + u.cols + " , S is " + sigma.length + " V' is " + v.rows +"x"+v.cols)
-    val zeromat = DenseMatrix.zeros[Double](10000-100,100)
-    println("Done computing SVD")
 
 
-    for(i <- 1 to 8) {
-      val max = sigma(0)*math.pow(2,i)
-      val sigmaprime = sigma
-      sigmaprime(0) = max
-      val mat = u*DenseMatrix.vertcat(diag(sigmaprime), zeromat)*v
-      println("Done computing new matrix")
-      val mmax = sigmaprime.toArray.max
-      val mmin = sigmaprime.toArray.min
+    for(i <- 0 to 10) {
+
+      val v = DenseVector(math.pow(10,i))
+      val sigma = diag(DenseVector.vertcat(v,ones))
+      println(diag(sigma))
+      val mat = fq.get * sigma * fq2.get
+
       val (q1,r1) = tsqr(mat,101,false)
-      val r2 = tsqr(mat,101,true)._2
+      val r2 = tsqr(mat,1000,true)._2
+//      println(r2)
 
       val qintermed = mat * inv(r2)
-      val t = tsqr(qintermed,101,true)._2
+      val t = tsqr(qintermed,1000,true)._2
       val s = t*r2
+//      val qq1 = mat * pinv(tsqr(mat*inv(s),1000,true)._2 * s)
 
       val qq1 = q1.get
-      val qq2 = mat * inv(s)
+      val qq2 = qintermed * inv(s)
       val diffm1 = ((qq1.t * qq1).mapValues(math.abs) - DenseMatrix.eye[Double](qq1.cols))
       val diffm2 = ((qq2.t * qq2).mapValues(math.abs) - DenseMatrix.eye[Double](qq2.cols))
-      val diff1 = (0 until diffm1.rows).map(i => diffm1(i,::).sum).max
-      val diff2 = (0 until diffm2.rows).map(i => diffm2(i,::).sum).max
-      println("Cond is: " + mmax/mmin  + " Diff 1 is: " + diff1 + " and diff 2 is : " + diff2)
+      val diff1 = (0 until diffm1.cols).map(i => diffm1(::,i).sum).max
+      val diff2 = (0 until diffm2.cols).map(i => diffm2(::,i).sum).max
+      println("Cond is: " + math.pow(10,i)  + " Diff 1 is: " + diff1 + " and diff 2 is : " + diff2)
 
     }
 }
