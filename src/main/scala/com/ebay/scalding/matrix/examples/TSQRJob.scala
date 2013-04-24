@@ -30,10 +30,7 @@ class TSQRJob(args: Args) extends Job(args) {
     .toMatrix[Long,Int,Double](('doc, 'word, 'count))
 
   // compute the overall document frequency of each row
-  val rMatrix = tsqr(inputMatrix,args("cols").toInt, 3)
-  rMatrix.write(Tsv("output"))
-
-
-
-
+  val (q,r) = dtsqr(inputMatrix,args("cols").toInt)
+  q.write(Tsv("output/Q"))
+  r.write(Tsv("output/R"))
 }

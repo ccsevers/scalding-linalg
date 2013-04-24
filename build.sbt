@@ -25,6 +25,8 @@ resolvers ++= Seq(
 
 test in assembly := {}
 
+mainClass in assembly := None
+
 scalaVersion := "2.9.2"
 
 name := "ScaldingLinalg"
